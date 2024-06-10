@@ -60,7 +60,7 @@ val gitUsername = "${System.getenv()["GIHUB_PACKAGE_USERNAME"] ?: System.getenv(
 val gitToken = "${System.getenv()["GIHUB_PACKAGE_TOKEN"] ?: System.getenv()["GITHUB_PACKAGE_TOKEN"]}"
 
 group = "io.github.breninsul"
-version = "1.0 "
+version = "1.0"
 
 idea {
     module {
@@ -68,7 +68,10 @@ idea {
         isDownloadSources = true
     }
 }
-
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
 configurations {
     configureEach {
         exclude(module = "flyway-core")
