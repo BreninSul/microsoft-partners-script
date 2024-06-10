@@ -1,0 +1,5 @@
+[*.{kt,kts}]
+ktlint_code_style = ktlint_official
+ij_kotlin_code_style_defaults = KOTLIN_OFFICIAL
+ktlint_standard_no-wildcard-imports = disabled
+max_line_length = 256
