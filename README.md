@@ -1,6 +1,7 @@
 Application to get list of Microsoft partners and save them to PostgresSQL DB.
 
-Requirements 
+Requirements
+
 1. PostgresSQL (tested on 16.1)
 2. Gradle 8.5
 3. Java 21
@@ -24,22 +25,24 @@ execute `gradle bootJar`
 
 ## Configuration of app
 
+Variables can be set by env. variables or command line arguments in format `argname1 argvalue1 ... argnamex argvaluex` like `java -jar $path-to-jar microsoft-api.sort 1`
+variables to change default settings:
 
-Use env. variables to change default settings:
-
-|       Env. variable        |                          Description                          | Possible values |
-|:--------------------------:|:-------------------------------------------------------------:|:---------------:|
-| spring.datasource.password |                            DB pass                            |      text       |
-| spring.datasource.username |                            DB user                            |      text       |
-| spring.datasource.username | DB JDBC uri   like `jdbc:postgresql://127.0.0.1:6433/ordinal` |      text       |
-|            sort            |                           Sort type                           |   Int   0..2    |
-|            max             |        Max results for filter (100 is Microsoft limit)        |       Int       |
-|            link            |                       Microsoft API uri                       |       URI       |
-|      additionalFilter      |         Microsoft filter like `services=Integration;`         |      text       |
+|            Variable             |                          Description                          | Possible values |
+|:-------------------------------:|:-------------------------------------------------------------:|:---------------:|
+|   spring.datasource.password    |                            DB pass                            |      text       |
+|   spring.datasource.username    |                            DB user                            |      text       |
+|   spring.datasource.username    | DB JDBC uri   like `jdbc:postgresql://127.0.0.1:6433/ordinal` |      text       |
+|       microsoft-api.sort        |                           Sort type                           |   Int   0..2    |
+|    microsoft-api.max-results    |        Max results for filter (100 is Microsoft limit)        |       Int       |
+|     microsoft-api.page-size     |                           Sort type                           |  Int    1..20   |
+|     microsoft-api.api-link      |                       Microsoft API uri                       |       URI       |
+| microsoft-api.additional-filter |         Microsoft filter like `services=Integration;`         |      text       |
 
 ## Preparation
 
 Create table for result
+
 ```postgresql
 create schema microsoft;
 
@@ -63,26 +66,30 @@ create unique index microsoft_id_unique on microsoft.partners (microsoft_id);
 
 ```
 
-
 ## Run
 
 execute `java -jar $path-to-jar`
 
 ## Get results
 
-To get results for importing to Excel query like 
+To get results for importing to Excel query like
 
 ```postgresql
 
-select
-            ROW_NUMBER() OVER(ORDER BY p.country,p.page_number,p.id) AS number,
-            p.name,
-            case when p.microsoft_link is not null and length(p.microsoft_link)>0 then '=HYPERLINK("'||p.microsoft_link||'")' else '' end as microsoft_link,
-            case when p.linkedin_link is not null and length(p.linkedin_link)>0 then '=HYPERLINK("'||p.linkedin_link||'")' else '' end as linkedin_link,
-            p.microsoft_id,
-            p.microsoft_partner_id
+select ROW_NUMBER() OVER (ORDER BY p.country,p.page_number,p.id) AS number,
+       p.name,
+       case
+           when p.microsoft_link is not null and length(p.microsoft_link) > 0
+               then '=HYPERLINK("' || p.microsoft_link || '")'
+           else '' end                                           as microsoft_link,
+       case
+           when p.linkedin_link is not null and length(p.linkedin_link) > 0
+               then '=HYPERLINK("' || p.linkedin_link || '")'
+           else '' end                                           as linkedin_link,
+       p.microsoft_id,
+       p.microsoft_partner_id
 from microsoft.partners p
-order by p.country,p.page_number,p.id
+order by p.country, p.page_number, p.id
 
 ```
 

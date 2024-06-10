@@ -32,7 +32,16 @@ import org.springframework.boot.builder.SpringApplicationBuilder
 class ApiGatewayApplication
 
 fun main(args: Array<String>) {
+    if (!args.size.isEven()) {
+        throw IllegalArgumentException("Invalid number of arguments. Must be even. Format(name1 value1 name2 value2). ${args.toList()}")
+    }
+    args.toList().chunked(2)
+        .forEach {
+            System.setProperty(it[0], it[1])
+        }
     SpringApplicationBuilder(ApiGatewayApplication::class.java)
         .web(WebApplicationType.NONE)
         .run("")
 }
+
+fun Int.isEven() = this % 2 == 0
